@@ -7,6 +7,7 @@ from PIL import Image
 pygame.init()
 
 # Images
+ICON = pygame.image.load("logo.png")
 IMG_AIM = pygame.image.load("aim.png")
 IMG_SCOPE = pygame.image.load("scope.png")
 IMG_SM_CRIMINAL = pygame.image.load("sm_criminal.png")
@@ -33,6 +34,7 @@ FPS = 30
 Hit = False
 
 gameDisplay = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+pygame.display.set_icon(ICON)
 pygame.display.set_caption(NAME) 
 clock = pygame.time.Clock()
 
