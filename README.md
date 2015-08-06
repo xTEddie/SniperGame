@@ -7,6 +7,8 @@ and the background image is taken from http://opengameart.org/content/city-backg
 
 ![Alt text](http://xteddie.noip.me/img/SniperGame-1.jpg)
 
-![Alt text](http://xteddie.noip.me/img/SniperGame-2.jpg)
+![Alt text](http://xteddie.noip.me/img/SniperGame-2.png)
+
+![Alt text](http://xteddie.noip.me/img/SniperGame-3.png)
 
 
