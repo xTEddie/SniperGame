@@ -19,8 +19,8 @@ IMG_LEFT_ARROW = pygame.image.load("left_arrow.png")
 IMG_RIGHT_ARROW = pygame.image.load("right_arrow.png")
 IMG_SPLATTER = pygame.image.load("splatter.png")
 IMG_RELOAD = pygame.image.load("reload.png")
-IMG_EXIT = pygame.image.load("exit.png")
 IMG_RELOAD_HOVER = pygame.image.load("reload2.png")
+IMG_EXIT = pygame.image.load("exit.png")
 IMG_EXIT_HOVER = pygame.image.load("exit2.png")
 
 # Fonts
@@ -79,10 +79,10 @@ def blackOut(color):
 	gameDisplay.fill(color)
 
 def checkGetHit(health):
-	# player = round(random.randrange(0, 300))
-	# target = round(random.randrange(0, 300))
-	player = round(random.randrange(0, 100))
-	target = round(random.randrange(0, 100))
+	player = round(random.randrange(0, 300))
+	target = round(random.randrange(0, 300))
+	# player = round(random.randrange(0, 50))
+	# target = round(random.randrange(0, 50))
 	if target == player:
 		blackOut(RED)
 		return health - 10
@@ -231,7 +231,9 @@ def runGame():
 					if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
 						exitGame()
 					elif event.key == pygame.K_c:
+						healthPoint = 100
 						gameOver = False
+						pygame.display.update()
 					elif event.key == pygame.K_q:
 						exitGame()
 				elif event.type == pygame.MOUSEBUTTONUP:
@@ -243,7 +245,9 @@ def runGame():
 							x = posX - replay.x
 							y = posY - replay.y
 							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
+								healthPoint = 100
 								gameOver = False
+								pygame.display.update()
 						elif quit.collidepoint(pygame.mouse.get_pos()):
 							image = Image.open("exit.png")
 							x = posX - quit.x
@@ -346,9 +350,9 @@ def runGame():
 			elif event.type == pygame.KEYDOWN:
 				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
 					exitGame()
-				elif event.key == pygame.K_a:
-					blackOut(BLACK)
-					gameOver = True
+				# elif event.key == pygame.K_a:
+				# 	blackOut(BLACK)
+				# 	gameOver = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				# If mouse left click is pressed
 				if event.button == 1: 
