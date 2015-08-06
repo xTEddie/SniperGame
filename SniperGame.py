@@ -232,6 +232,7 @@ def runGame():
 						exitGame()
 					elif event.key == pygame.K_c:
 						healthPoint = 100
+						score = 0
 						gameOver = False
 						pygame.display.update()
 					elif event.key == pygame.K_q:
@@ -246,6 +247,7 @@ def runGame():
 							y = posY - replay.y
 							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
 								healthPoint = 100
+								score = 0
 								gameOver = False
 								pygame.display.update()
 						elif quit.collidepoint(pygame.mouse.get_pos()):
@@ -350,9 +352,9 @@ def runGame():
 			elif event.type == pygame.KEYDOWN:
 				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
 					exitGame()
-				# elif event.key == pygame.K_a:
-				# 	blackOut(BLACK)
-				# 	gameOver = True
+				elif event.key == pygame.K_a:
+					blackOut(BLACK)
+					gameOver = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				# If mouse left click is pressed
 				if event.button == 1: 
