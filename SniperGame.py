@@ -1,8 +1,8 @@
 import pygame
 import time
-import pygame.mixer
 import random
 from PIL import Image
+import tkinter 
 
 pygame.init()
 
@@ -18,6 +18,8 @@ IMG_LG_SPLASH = pygame.image.load("lg_splash.png")
 IMG_LEFT_ARROW = pygame.image.load("left_arrow.png")
 IMG_RIGHT_ARROW = pygame.image.load("right_arrow.png")
 IMG_SPLATTER = pygame.image.load("splatter.png")
+IMG_RELOAD = pygame.image.load("reload.png")
+IMG_EXIT = pygame.image.load("exit.png")
 
 # Fonts
 SMALL_FONT = pygame.font.SysFont("comicsansms", 25, True) 
@@ -62,6 +64,10 @@ def blitText(msg, color, x_displace=0, y_displace=0, size="small"):
     textSurf, textRect = getTextSurface(msg, color, size)
     textRect.center = (DISPLAY_WIDTH/2) + x_displace, (DISPLAY_HEIGHT/2) + y_displace
     gameDisplay.blit(textSurf, textRect) 
+
+def exitGame():
+	pygame.quit()
+	quit()
 
 def updateScore(score):
     text = SMALL_FONT.render("Score: "+str(score), True, YELLOW)
@@ -207,22 +213,44 @@ def runGame():
 			gameDisplay.fill(DARK_BLUE)
 			gameDisplay.blit(IMG_SPLATTER, (DISPLAY_WIDTH/2 - IMG_SPLATTER.get_rect()[2]/2, DISPLAY_HEIGHT/2 - IMG_SPLATTER.get_rect()[3]/2))  	
 			blitText("GAME OVER", WHITE, x_displace=15, size="small")
+			replay = gameDisplay.blit(IMG_RELOAD, (20, 20))
+			quit = gameDisplay.blit(IMG_EXIT, (720, 20))
+			# blitText("Press C to play again or Q to quit", WHITE, y_displace=50)
 			pygame.display.update()
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
-					pygame.quit()
-					quit()
+					exitGame()
 				elif event.type == pygame.KEYDOWN:
 					if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
-						pygame.quit()
-						quit()
-
-		pygame.mouse.set_visible(False) # Disable default cursor
+						exitGame()
+					elif event.key == pygame.K_c:
+						gameOver = False
+					elif event.key == pygame.K_q:
+						exitGame()
+				elif event.type == pygame.MOUSEBUTTONUP:
+					# If mouse left click is pressed
+					if event.button == 1: 
+						GAMEOVER_BUTTON = (49,255,8,255)
+						posX, posY = pygame.mouse.get_pos()
+						if replay.collidepoint((posX, posY)):
+							image = Image.open("reload.png")
+							x = posX - replay.x
+							y = posY - replay.y
+							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
+								gameOver = False
+						elif quit.collidepoint(pygame.mouse.get_pos()):
+							image = Image.open("exit.png")
+							x = posX - quit.x
+							y = posY - quit.y
+							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
+								exitGame()
+						
 		# Get mouse cursor position
-		cursorX,cursorY = pygame.mouse.get_pos()
+		cursorX,cursorY = pygame.mouse.get_pos()						
 		cursorX -= mouseCursor.get_width()/2 
 		cursorY -= mouseCursor.get_height()/2
+		pygame.mouse.set_visible(False) # Disable default cursor
 
 		if onScope:
 			img_criminal = IMG_LG_CRIMINAL
@@ -285,12 +313,10 @@ def runGame():
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
-				pygame.quit()
-				quit()
+				exitGame()
 			elif event.type == pygame.KEYDOWN:
 				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
-					pygame.quit()
-					quit()
+					exitGame()
 				elif event.key == pygame.K_a:
 					blackOut(BLACK)
 					gameOver = True
@@ -329,7 +355,6 @@ def runGame():
 		pygame.display.update()
 		clock.tick(FPS)
 
-	pygame.quit()
-	quit()
+	exitGame()
 
 runGame()
