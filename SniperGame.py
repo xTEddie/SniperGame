@@ -352,9 +352,9 @@ def runGame():
 			elif event.type == pygame.KEYDOWN:
 				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
 					exitGame()
-				elif event.key == pygame.K_a:
-					blackOut(BLACK)
-					gameOver = True
+				# elif event.key == pygame.K_a:
+				# 	blackOut(BLACK)
+				# 	gameOver = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				# If mouse left click is pressed
 				if event.button == 1: 
