@@ -17,6 +17,7 @@ IMG_SM_SPLASH = pygame.image.load("sm_splash.png")
 IMG_LG_SPLASH = pygame.image.load("lg_splash.png")
 IMG_LEFT_ARROW = pygame.image.load("left_arrow.png")
 IMG_RIGHT_ARROW = pygame.image.load("right_arrow.png")
+IMG_SPLATTER = pygame.image.load("splatter.png")
 
 # Fonts
 SMALL_FONT = pygame.font.SysFont("comicsansms", 25, True) 
@@ -46,8 +47,6 @@ pygame.display.set_icon(ICON)
 pygame.display.set_caption(NAME) 
 clock = pygame.time.Clock()
 
-pygame.mouse.set_visible(False) # Disable default cursor
-
 def getTextSurface(text, color, size):
     # Draw text on a new Surface
     if size == "small":
@@ -68,23 +67,16 @@ def updateScore(score):
     text = SMALL_FONT.render("Score: "+str(score), True, YELLOW)
     gameDisplay.blit(text, [20,10])
 
-def blackOut():
-	gameDisplay.fill(RED)
-
-# def reduceHealth(health):
-# 	x = health[0] + 10
-# 	y = health[1]
-# 	width = health[2] - 10
-# 	height = health[3]
-
-# 	r = pygame.draw.rect(gameDisplay, RED, (x, y, width, height))
-# 	return r
+def blackOut(color):
+	gameDisplay.fill(color)
 
 def checkGetHit(health):
-	player = round(random.randrange(0, 300))
-	target = round(random.randrange(0, 300))
+	# player = round(random.randrange(0, 300))
+	# target = round(random.randrange(0, 300))
+	player = round(random.randrange(0, 100))
+	target = round(random.randrange(0, 100))
 	if target == player:
-		blackOut()
+		blackOut(RED)
 		return health - 10
 	return health
 
@@ -209,6 +201,24 @@ def runGame():
 	criminal_position_x = targetPositionX
 
 	while not gameExit:	
+
+		while gameOver:
+			pygame.mouse.set_visible(True) # Enable default cursor
+			gameDisplay.fill(DARK_BLUE)
+			gameDisplay.blit(IMG_SPLATTER, (DISPLAY_WIDTH/2 - IMG_SPLATTER.get_rect()[2]/2, DISPLAY_HEIGHT/2 - IMG_SPLATTER.get_rect()[3]/2))  	
+			blitText("GAME OVER", WHITE, x_displace=15, size="small")
+			pygame.display.update()
+
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					pygame.quit()
+					quit()
+				elif event.type == pygame.KEYDOWN:
+					if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
+						pygame.quit()
+						quit()
+
+		pygame.mouse.set_visible(False) # Disable default cursor
 		# Get mouse cursor position
 		cursorX,cursorY = pygame.mouse.get_pos()
 		cursorX -= mouseCursor.get_width()/2 
@@ -259,7 +269,6 @@ def runGame():
 
 		# Update health Point
 		healthPoint = checkGetHit(healthPoint)
-		print(healthPoint)
 
 		# Draw healthBar
 		pygame.draw.rect(gameDisplay, BLACK, [DISPLAY_WIDTH - 220,15,200,40])
@@ -283,7 +292,8 @@ def runGame():
 					pygame.quit()
 					quit()
 				elif event.key == pygame.K_a:
-					blackOut()
+					blackOut(BLACK)
+					gameOver = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				# If mouse left click is pressed
 				if event.button == 1: 
