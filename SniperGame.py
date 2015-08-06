@@ -20,6 +20,8 @@ IMG_RIGHT_ARROW = pygame.image.load("right_arrow.png")
 IMG_SPLATTER = pygame.image.load("splatter.png")
 IMG_RELOAD = pygame.image.load("reload.png")
 IMG_EXIT = pygame.image.load("exit.png")
+IMG_RELOAD_HOVER = pygame.image.load("reload2.png")
+IMG_EXIT_HOVER = pygame.image.load("exit2.png")
 
 # Fonts
 SMALL_FONT = pygame.font.SysFont("comicsansms", 25, True) 
@@ -207,14 +209,18 @@ def runGame():
 	criminal_position_x = targetPositionX
 
 	while not gameExit:	
+		img_replay = IMG_RELOAD 
+		img_exit = IMG_EXIT
 
 		while gameOver:
+			GAMEOVER_BUTTON = (49,255,8,255)
+			GAMEOVER_BUTTON_HOVER = (35,184,6,255)
 			pygame.mouse.set_visible(True) # Enable default cursor
 			gameDisplay.fill(DARK_BLUE)
 			gameDisplay.blit(IMG_SPLATTER, (DISPLAY_WIDTH/2 - IMG_SPLATTER.get_rect()[2]/2, DISPLAY_HEIGHT/2 - IMG_SPLATTER.get_rect()[3]/2))  	
 			blitText("GAME OVER", WHITE, x_displace=15, size="small")
-			replay = gameDisplay.blit(IMG_RELOAD, (20, 20))
-			quit = gameDisplay.blit(IMG_EXIT, (720, 20))
+			replay = gameDisplay.blit(img_replay, (20, 20))
+			quit = gameDisplay.blit(img_exit, (720, 20))
 			# blitText("Press C to play again or Q to quit", WHITE, y_displace=50)
 			pygame.display.update()
 
@@ -231,7 +237,6 @@ def runGame():
 				elif event.type == pygame.MOUSEBUTTONUP:
 					# If mouse left click is pressed
 					if event.button == 1: 
-						GAMEOVER_BUTTON = (49,255,8,255)
 						posX, posY = pygame.mouse.get_pos()
 						if replay.collidepoint((posX, posY)):
 							image = Image.open("reload.png")
@@ -245,7 +250,31 @@ def runGame():
 							y = posY - quit.y
 							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
 								exitGame()
-						
+				elif event.type == pygame.MOUSEMOTION:
+					posX, posY = pygame.mouse.get_pos()
+
+					# If mouse collides with replay image
+					if replay.collidepoint((posX, posY)):
+						image = Image.open("reload.png")
+						x = posX - replay.x
+						y = posY - replay.y
+
+						# Add hover on img_replay
+						if image.getpixel((x,y)) == GAMEOVER_BUTTON:
+							img_replay = IMG_RELOAD_HOVER
+					# If mouse collides with quit image
+					elif quit.collidepoint((posX, posY)):
+						image = Image.open("exit.png")
+						x = posX - quit.x
+						y = posY - quit.y
+
+						# Add hover on img_exit
+						if image.getpixel((x,y)) == GAMEOVER_BUTTON:
+							img_exit = IMG_EXIT_HOVER
+					else:
+						img_replay = IMG_RELOAD
+						img_exit = IMG_EXIT
+
 		# Get mouse cursor position
 		cursorX,cursorY = pygame.mouse.get_pos()						
 		cursorX -= mouseCursor.get_width()/2 
