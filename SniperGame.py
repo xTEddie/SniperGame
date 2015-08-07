@@ -201,6 +201,7 @@ def runGame():
 	disp_x = 0
 	score = 0
 	healthPoint = 100
+	disp_y = 0
 
 	city = gameDisplay.blit(IMG_SM_CITY, (0, 68))
 	criminal = gameDisplay.blit(IMG_SM_CRIMINAL, (49, 475))
@@ -218,10 +219,11 @@ def runGame():
 			pygame.mouse.set_visible(True) # Enable default cursor
 			gameDisplay.fill(DARK_BLUE)
 			gameDisplay.blit(IMG_SPLATTER, (DISPLAY_WIDTH/2 - IMG_SPLATTER.get_rect()[2]/2, DISPLAY_HEIGHT/2 - IMG_SPLATTER.get_rect()[3]/2))  	
+			blitText("Press C to play again or Q to quit", YELLOW, y_displace=-260)
 			blitText("GAME OVER", WHITE, x_displace=15, size="small")
+			blitText(str(score), WHITE, size="medium", x_displace=15, y_displace=50)
 			replay = gameDisplay.blit(img_replay, (20, 20))
 			quit = gameDisplay.blit(img_exit, (720, 20))
-			# blitText("Press C to play again or Q to quit", WHITE, y_displace=50)
 			pygame.display.update()
 
 			for event in pygame.event.get():
@@ -234,6 +236,8 @@ def runGame():
 						healthPoint = 100
 						score = 0
 						gameOver = False
+						targetPositionX, targetPositionY = generateTarget(criminal)
+						city_position_x = 0
 						pygame.display.update()
 					elif event.key == pygame.K_q:
 						exitGame()
@@ -249,6 +253,8 @@ def runGame():
 								healthPoint = 100
 								score = 0
 								gameOver = False
+								targetPositionX, targetPositionY = generateTarget(criminal)
+								city_position_x = 0
 								pygame.display.update()
 						elif quit.collidepoint(pygame.mouse.get_pos()):
 							image = Image.open("exit.png")
@@ -289,8 +295,13 @@ def runGame():
 
 		if onScope:
 			img_criminal = IMG_LG_CRIMINAL
+			disp_y = -12
 		else:
 			img_criminal = IMG_SM_CRIMINAL
+			if disp_y == -12:
+				disp_y = 12
+			else:
+				disp_y = 0
 		
 		# Move background depending on cursor's X position
 		if onScope:
@@ -322,7 +333,7 @@ def runGame():
 		gameDisplay.fill(DARK_BLUE)			
 		city = gameDisplay.blit(IMG_SM_CITY, (city_position_x,68))
 
-		criminal = gameDisplay.blit(img_criminal, (targetPositionX + city_position_x, targetPositionY))  	
+		criminal = gameDisplay.blit(img_criminal, (targetPositionX + city_position_x, targetPositionY + disp_y))  	
 
 		# Show where player should move the mouse to find the criminal if criminal goes off screen
 		if targetPositionX + city_position_x < 0:
@@ -370,6 +381,8 @@ def runGame():
 							# Update target position 
 							targetPositionX, targetPositionY = generateTarget(criminal)
 							score += 1
+							if onScope:
+								targetPositionY += 12
 					except:
 						pass
 
