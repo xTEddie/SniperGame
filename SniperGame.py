@@ -25,6 +25,8 @@ IMG_RELOAD = pygame.image.load("reload.png")
 IMG_RELOAD_HOVER = pygame.image.load("reload2.png")
 IMG_EXIT = pygame.image.load("exit.png")
 IMG_EXIT_HOVER = pygame.image.load("exit2.png")
+IMG_RETURN = pygame.image.load("return.png")
+IMG_RETURN_HOVER = pygame.image.load("return2.png")
 
 # Fonts
 VERY_SMALL_FONT = pygame.font.SysFont("comicsansms", 15, True) 
@@ -38,6 +40,8 @@ BLACK = (0,0,0)
 BROWN = (82,0,0)
 RED = (255,0,0)
 GREEN = (0,100,0)
+LIGHT_GREEN = (49,255,8,255)
+LIGHT_GREEN_HOVER = (35,184,6,255)
 BLUE = (0,0,255)
 YELLOW = (255,255,0)
 DARK_BLUE = (0,0,30)
@@ -131,30 +135,23 @@ def generateTarget(target):
 	onFloor = False
 	onLeft = False
 
-	try:
-		while not onFloor:
-			y += 1
-			pixelColor = image.getpixel((x,y))
+	while not onFloor:
+		y += 1
+		pixelColor = image.getpixel((x,y))
 
-			if not pixelColor == location:
-				onFloor = True
+		if not pixelColor == location:
+			onFloor = True
 
-		y -= 1
-	except:
-		y = 475
+	y -= 1
 		
-	try: 
-		while not onLeft:
-			x -= 1
-			pixelColor = image.getpixel((x,y))
+	while not onLeft:
+		x -= 1
+		pixelColor = image.getpixel((x,y))
 
-			if not pixelColor == location:
-				onLeft = True	
+		if not pixelColor == location:
+			onLeft = True	
 
-		x += 1
-	except:
-		x = 49
-		pass
+	x += 1
 
 	return x + city.x, y + city.y - img_shooter.get_rect()[3]
 
@@ -195,11 +192,52 @@ def checkHitTarget(target):
 			except:
 				pass
 
+def showCredits():
+	credits = True
+	img_return = IMG_RETURN
+
+	while credits:
+		gameDisplay.fill(DARK_BLUE)
+		blitText("CREDITS", WHITE, y_displace=-250, size="medium")
+		blitText("http://jonnybrownasmedia-jonnybrown.blogspot.ca/2011/04/sniper-scope-effect-how-i-did-it.html", WHITE, y_displace=-150, size="very small")
+		blitText("http://opengameart.org/content/city-background-repetitive-2", WHITE, y_displace=-100, size="very small")
+		blitText("http://www.flaticon.com/", WHITE, y_displace=-50, size="very small")
+		back = gameDisplay.blit(img_return, (20,520))
+		
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				exitGame()
+			elif event.type == pygame.KEYDOWN:
+				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
+					exitGame()
+				elif event.key == pygame.K_q:
+					startScreen()
+			elif event.type == pygame.MOUSEMOTION:
+				posX, posY = pygame.mouse.get_pos()
+
+				if back.collidepoint((posX, posY)):
+					image = Image.open("return.png")
+					x = posX - back.x
+					y = posY - back.y
+
+					if image.getpixel((x,y)) == LIGHT_GREEN: 
+						img_return = IMG_RETURN_HOVER
+				else:
+					img_return = IMG_RETURN
+
+			elif event.type == pygame.MOUSEBUTTONUP:
+				posX, posY = pygame.mouse.get_pos()
+
+				if back.collidepoint((posX, posY)):
+					startScreen()
+
+		pygame.display.update()
+
 def startScreen():
 	intro = True
 	play_color = WHITE
 	instructions_color = WHITE
-	about_color = WHITE
+	credits_color = WHITE
 	quit_color = WHITE
 
 	while intro:
@@ -214,7 +252,7 @@ def startScreen():
 		blitText("Copyright © 2015 Edward Tran inc.", GREEN, y_displace=0, size="very small")
 		play = blitText("PLAY", play_color, y_displace=60, size="medium")
 		instructions = blitText("INSTRUCTIONS", instructions_color, y_displace=110, size="medium")
-		about = blitText("ABOUT", about_color, y_displace=160, size="medium")
+		credits = blitText("CREDITS", credits_color, y_displace=160, size="medium")
 		quit = blitText("QUIT", quit_color, y_displace=210, size="medium")
 
 		for event in pygame.event.get():
@@ -234,15 +272,15 @@ def startScreen():
 				if play.collidepoint((posX, posY)):
 					play_color = YELLOW	
 					instructions_color = WHITE
-					about_color = WHITE
+					credits_color = WHITE
 					quit_color = WHITE
 				elif instructions.collidepoint((posX, posY)):
 					instructions_color = YELLOW
 					play_color = WHITE
-					about_color = WHITE
+					credits_color = WHITE
 					quit_color = WHITE
-				elif about.collidepoint((posX, posY)):
-					about_color = YELLOW
+				elif credits.collidepoint((posX, posY)):
+					credits_color = YELLOW
 					play_color = WHITE
 					instructions_color = WHITE
 					quit_color = WHITE
@@ -250,19 +288,21 @@ def startScreen():
 					quit_color = YELLOW
 					play_color = WHITE
 					instructions_color = WHITE
-					about_color = WHITE
+					credits_color = WHITE
 				else:
 					play_color = WHITE
 					instructions_color = WHITE
-					about_color = WHITE
+					credits_color = WHITE
 					quit_color = WHITE
 			elif event.type == pygame.MOUSEBUTTONUP:
 				posX, posY = pygame.mouse.get_pos()
 
-				if play.collidepoint((posX, posY)):
+				if play_color == YELLOW:
 					runGame()
-				elif quit.collidepoint((posX, posY)):
+				elif quit_color == YELLOW:
 					exitGame()
+				elif credits_color == YELLOW:
+					showCredits()
 				else:
 					timer = pygame.time.get_ticks() + 200
 					while timer > pygame.time.get_ticks():
@@ -270,6 +310,24 @@ def startScreen():
 						pygame.display.update()
 
 		pygame.display.update()
+
+def pauseGame():
+	paused = True
+
+	while paused:
+		for event in pygame.event.get():
+		    if event.type == pygame.QUIT:
+		    	exitGame()
+		    elif event.type == pygame.KEYDOWN:
+		    	if event.key == pygame.K_c:
+		    		paused = False
+		    	elif event.key == pygame.K_q:
+		    		exitGame()
+
+		blitText("Pause", WHITE, y_displace=-100, size="large")
+		blitText("Press C to continue or Q to quit", WHITE)
+		pygame.display.update()
+		clock.tick(5)
 
 def runGame():
 	global city
@@ -297,8 +355,6 @@ def runGame():
 		img_exit = IMG_EXIT
 
 		while gameOver:
-			GAMEOVER_BUTTON = (49,255,8,255)
-			GAMEOVER_BUTTON_HOVER = (35,184,6,255)
 			pygame.mouse.set_visible(True) # Enable default cursor
 			gameDisplay.fill(DARK_BLUE)
 			gameDisplay.blit(IMG_SPLATTER, (DISPLAY_WIDTH/2 - IMG_SPLATTER.get_rect()[2]/2, DISPLAY_HEIGHT/2 - IMG_SPLATTER.get_rect()[3]/2))  	
@@ -332,7 +388,7 @@ def runGame():
 							image = Image.open("reload.png")
 							x = posX - replay.x
 							y = posY - replay.y
-							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
+							if image.getpixel((x,y)) == LIGHT_GREEN: 
 								healthPoint = 100
 								score = 0
 								gameOver = False
@@ -343,7 +399,7 @@ def runGame():
 							image = Image.open("exit.png")
 							x = posX - quit.x
 							y = posY - quit.y
-							if image.getpixel((x,y)) == GAMEOVER_BUTTON: 
+							if image.getpixel((x,y)) == LIGHT_GREEN: 
 								exitGame()
 				elif event.type == pygame.MOUSEMOTION:
 					posX, posY = pygame.mouse.get_pos()
@@ -355,7 +411,7 @@ def runGame():
 						y = posY - replay.y
 
 						# Add hover on img_replay
-						if image.getpixel((x,y)) == GAMEOVER_BUTTON:
+						if image.getpixel((x,y)) == LIGHT_GREEN:
 							img_replay = IMG_RELOAD_HOVER
 					# If mouse collides with quit image
 					elif quit.collidepoint((posX, posY)):
@@ -364,7 +420,7 @@ def runGame():
 						y = posY - quit.y
 
 						# Add hover on img_exit
-						if image.getpixel((x,y)) == GAMEOVER_BUTTON:
+						if image.getpixel((x,y)) == LIGHT_GREEN:
 							img_exit = IMG_EXIT_HOVER
 					else:
 						img_replay = IMG_RELOAD
@@ -446,9 +502,9 @@ def runGame():
 			elif event.type == pygame.KEYDOWN:
 				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
 					exitGame()
-				# elif event.key == pygame.K_a:
-				# 	blackOut(BLACK)
-				# 	gameOver = True
+				elif event.key == pygame.K_p:
+					pauseGame()
+
 			elif event.type == pygame.MOUSEBUTTONUP:
 				# If mouse left click is pressed
 				if event.button == 1: 
