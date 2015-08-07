@@ -11,8 +11,11 @@ ICON = pygame.image.load("logo.png")
 IMG_SM_CITY = pygame.image.load("City.png")
 IMG_AIM = pygame.image.load("aim.png")
 IMG_SCOPE = pygame.image.load("scope.png")
-IMG_SM_CRIMINAL = pygame.image.load("sm_criminal.png")
-IMG_LG_CRIMINAL = pygame.image.load("lg_criminal.png")
+IMG_TARGETING = pygame.image.load("targeting.png")
+IMG_CRIMINAL = pygame.image.load("criminal.png")
+IMG_SHOOTER = pygame.image.load("shooter.png")
+IMG_SM_SHOOTER = pygame.image.load("sm_shooter.png")
+IMG_LG_SHOOTER = pygame.image.load("lg_shooter.png")
 IMG_SM_SPLASH = pygame.image.load("sm_splash.png")
 IMG_LG_SPLASH = pygame.image.load("lg_splash.png")
 IMG_LEFT_ARROW = pygame.image.load("left_arrow.png")
@@ -24,13 +27,15 @@ IMG_EXIT = pygame.image.load("exit.png")
 IMG_EXIT_HOVER = pygame.image.load("exit2.png")
 
 # Fonts
+VERY_SMALL_FONT = pygame.font.SysFont("comicsansms", 15, True) 
 SMALL_FONT = pygame.font.SysFont("comicsansms", 25, True) 
 MEDIUM_FONT = pygame.font.SysFont("comicsansms", 50, True) 
 LARGE_FONT = pygame.font.SysFont("comicsansms", 80, True)
 
 # Colors
 WHITE = (255,255,255)
-BLACK= (0,0,0)
+BLACK = (0,0,0)
+BROWN = (82,0,0)
 RED = (255,0,0)
 GREEN = (0,100,0)
 BLUE = (0,0,255)
@@ -53,6 +58,8 @@ clock = pygame.time.Clock()
 
 def getTextSurface(text, color, size):
     # Draw text on a new Surface
+    if size == "very small":
+    	textSurface = VERY_SMALL_FONT.render(text, True, color)
     if size == "small":
         textSurface = SMALL_FONT.render(text, True, color) 
     elif size == "medium":
@@ -65,18 +72,18 @@ def blitText(msg, color, x_displace=0, y_displace=0, size="small"):
     # Draw surface on another surface
     textSurf, textRect = getTextSurface(msg, color, size)
     textRect.center = (DISPLAY_WIDTH/2) + x_displace, (DISPLAY_HEIGHT/2) + y_displace
-    gameDisplay.blit(textSurf, textRect) 
+    return gameDisplay.blit(textSurf, textRect) 
 
 def exitGame():
 	pygame.quit()
 	quit()
 
+def blackOut(color):
+	gameDisplay.fill(color)
+
 def updateScore(score):
     text = SMALL_FONT.render("Score: "+str(score), True, YELLOW)
     gameDisplay.blit(text, [20,10])
-
-def blackOut(color):
-	gameDisplay.fill(color)
 
 def checkGetHit(health):
 	player = round(random.randrange(0, 300))
@@ -96,9 +103,9 @@ def generateTarget(target):
 	error = False
 
 	if onScope:
-		img_criminal = IMG_LG_CRIMINAL
+		img_shooter = IMG_LG_SHOOTER
 	else:
-		img_criminal = IMG_SM_CRIMINAL
+		img_shooter = IMG_SM_SHOOTER
 
 	while repeat:
 		targetPositionX = round(random.randrange(0, IMG_SM_CITY.get_rect()[2] - target.size[0]))
@@ -149,14 +156,14 @@ def generateTarget(target):
 		x = 49
 		pass
 
-	return x + city.x, y + city.y - img_criminal.get_rect()[3]
+	return x + city.x, y + city.y - img_shooter.get_rect()[3]
 
 def checkHitTarget(target):
 	if not onScope:
-		image = Image.open("sm_criminal.png")
+		image = Image.open("sm_shooter.png")
 		splash = IMG_SM_SPLASH
 	else:
-		image = Image.open("lg_criminal.png")
+		image = Image.open("lg_shooter.png")
 		splash = IMG_LG_SPLASH
 
 	# Get mouse position
@@ -188,6 +195,82 @@ def checkHitTarget(target):
 			except:
 				pass
 
+def startScreen():
+	intro = True
+	play_color = WHITE
+	instructions_color = WHITE
+	about_color = WHITE
+	quit_color = WHITE
+
+	while intro:
+
+		gameDisplay.fill(DARK_BLUE)
+		pygame.draw.rect(gameDisplay, RED, [70,70,660,210])
+		pygame.draw.rect(gameDisplay, BROWN, [80,80,640,190])
+		gameDisplay.blit(IMG_CRIMINAL, (133,142))
+		gameDisplay.blit(IMG_TARGETING, (100,110))
+		gameDisplay.blit(IMG_SHOOTER, (560,110))
+		blitText("SNIPER", WHITE, y_displace=-130, size="large")
+		blitText("Copyright © 2015 Edward Tran inc.", GREEN, y_displace=0, size="very small")
+		play = blitText("PLAY", play_color, y_displace=60, size="medium")
+		instructions = blitText("INSTRUCTIONS", instructions_color, y_displace=110, size="medium")
+		about = blitText("ABOUT", about_color, y_displace=160, size="medium")
+		quit = blitText("QUIT", quit_color, y_displace=210, size="medium")
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				exitGame()
+			elif event.type == pygame.KEYDOWN:
+				if pygame.key.get_pressed()[pygame.K_LALT] and pygame.key.get_pressed()[pygame.K_F4]:
+					exitGame()
+				elif event.key == pygame.K_p:
+					runGame()
+				elif event.key == pygame.K_q:
+					exitGame()
+			elif event.type == pygame.MOUSEMOTION:
+				posX, posY = pygame.mouse.get_pos()
+
+				# Hover effect
+				if play.collidepoint((posX, posY)):
+					play_color = YELLOW	
+					instructions_color = WHITE
+					about_color = WHITE
+					quit_color = WHITE
+				elif instructions.collidepoint((posX, posY)):
+					instructions_color = YELLOW
+					play_color = WHITE
+					about_color = WHITE
+					quit_color = WHITE
+				elif about.collidepoint((posX, posY)):
+					about_color = YELLOW
+					play_color = WHITE
+					instructions_color = WHITE
+					quit_color = WHITE
+				elif quit.collidepoint((posX, posY)):
+					quit_color = YELLOW
+					play_color = WHITE
+					instructions_color = WHITE
+					about_color = WHITE
+				else:
+					play_color = WHITE
+					instructions_color = WHITE
+					about_color = WHITE
+					quit_color = WHITE
+			elif event.type == pygame.MOUSEBUTTONUP:
+				posX, posY = pygame.mouse.get_pos()
+
+				if play.collidepoint((posX, posY)):
+					runGame()
+				elif quit.collidepoint((posX, posY)):
+					exitGame()
+				else:
+					timer = pygame.time.get_ticks() + 200
+					while timer > pygame.time.get_ticks():
+						gameDisplay.blit(IMG_LG_SPLASH, (posX - IMG_LG_SPLASH.get_rect()[2]/2, posY - IMG_LG_SPLASH.get_rect()[3]/2))
+						pygame.display.update()
+
+		pygame.display.update()
+
 def runGame():
 	global city
 	global onScope
@@ -204,10 +287,10 @@ def runGame():
 	disp_y = 0
 
 	city = gameDisplay.blit(IMG_SM_CITY, (0, 68))
-	criminal = gameDisplay.blit(IMG_SM_CRIMINAL, (49, 475))
+	shooter = gameDisplay.blit(IMG_SM_SHOOTER, (49, 475))
 	city_position_x = city.x 
-	targetPositionX, targetPositionY = generateTarget(criminal)
-	criminal_position_x = targetPositionX
+	targetPositionX, targetPositionY = generateTarget(shooter)
+	shooter_position_x = targetPositionX
 
 	while not gameExit:	
 		img_replay = IMG_RELOAD 
@@ -236,7 +319,7 @@ def runGame():
 						healthPoint = 100
 						score = 0
 						gameOver = False
-						targetPositionX, targetPositionY = generateTarget(criminal)
+						targetPositionX, targetPositionY = generateTarget(shooter)
 						city_position_x = 0
 						pygame.display.update()
 					elif event.key == pygame.K_q:
@@ -253,7 +336,7 @@ def runGame():
 								healthPoint = 100
 								score = 0
 								gameOver = False
-								targetPositionX, targetPositionY = generateTarget(criminal)
+								targetPositionX, targetPositionY = generateTarget(shooter)
 								city_position_x = 0
 								pygame.display.update()
 						elif quit.collidepoint(pygame.mouse.get_pos()):
@@ -294,10 +377,10 @@ def runGame():
 		pygame.mouse.set_visible(False) # Disable default cursor
 
 		if onScope:
-			img_criminal = IMG_LG_CRIMINAL
+			img_shooter = IMG_LG_SHOOTER
 			disp_y = -12
 		else:
-			img_criminal = IMG_SM_CRIMINAL
+			img_shooter = IMG_SM_SHOOTER
 			if disp_y == -12:
 				disp_y = 12
 			else:
@@ -328,14 +411,14 @@ def runGame():
 			city_position_x  = - IMG_SM_CITY.get_rect()[2] + DISPLAY_WIDTH
 			disp_x = 0 
 
-		criminal_position_x = criminal_position_x + disp_x
+		shooter_position_x = shooter_position_x + disp_x
 
 		gameDisplay.fill(DARK_BLUE)			
 		city = gameDisplay.blit(IMG_SM_CITY, (city_position_x,68))
 
-		criminal = gameDisplay.blit(img_criminal, (targetPositionX + city_position_x, targetPositionY + disp_y))  	
+		shooter = gameDisplay.blit(img_shooter, (targetPositionX + city_position_x, targetPositionY + disp_y))  	
 
-		# Show where player should move the mouse to find the criminal if criminal goes off screen
+		# Show where player should move the mouse to find the shooter if shooter goes off screen
 		if targetPositionX + city_position_x < 0:
 			left_arrow = gameDisplay.blit(IMG_LEFT_ARROW, (10, DISPLAY_HEIGHT/2 - IMG_LEFT_ARROW.get_rect()[2]/2))
 		elif targetPositionX + city_position_x > DISPLAY_WIDTH:
@@ -376,10 +459,10 @@ def runGame():
 					pygame.mouse.set_pos([x,y-10])
 
 					try:
-						# If criminal is hit
-						if checkHitTarget(criminal):
+						# If shooter is hit
+						if checkHitTarget(shooter):
 							# Update target position 
-							targetPositionX, targetPositionY = generateTarget(criminal)
+							targetPositionX, targetPositionY = generateTarget(shooter)
 							score += 1
 							if onScope:
 								targetPositionY += 12
@@ -405,4 +488,4 @@ def runGame():
 
 	exitGame()
 
-runGame()
+startScreen()
